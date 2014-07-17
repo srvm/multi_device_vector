@@ -7,6 +7,12 @@
 
 static constexpr int N = 901;
 
+template<typename S>
+__global__ void test_kernel(S s) {
+  s[0] = 3;
+  printf("%f\n", s[0]);
+}
+
 int main() {
   using value_t = float;
 
@@ -19,6 +25,8 @@ int main() {
   thrust::multi_device_vector<value_t> v1(h_vector);
   thrust::multi_device_vector<value_t> v2(N, 0);
 
+  test_kernel<<<1, 1>>>(v1);
+  
   // Copy everything in v1 to v2
   //thrust::copy(v1.begin(), v1.end(), v2.begin());
 
