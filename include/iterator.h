@@ -14,8 +14,7 @@ namespace thrust {
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
 
     typedef value_type T;
-    typedef thrust::device_ptr<T> pointer_t;
-    typedef pointer_t *storage_t;
+    typedef base_iterator *storage_t;
 
     __host__ __device__
     multi_device_iterator(storage_t v,
@@ -24,10 +23,9 @@ namespace thrust {
       m_v(v), m_tile_size(tile_size), m_pointer(offset) {}
 
     __device__
-    reference operator*() {
-      T *v_start = thrust::raw_pointer_cast(*(m_v + (m_pointer / m_tile_size)));
-      return thrust::device_reference<T>(thrust::device_pointer_cast(
-            v_start + (m_pointer % m_tile_size)));
+    reference operator*() const {
+      base_iterator begin = m_v[m_pointer / m_tile_size];
+      return *(begin + (m_pointer % m_tile_size));
     }
 
     // prefix
@@ -60,7 +58,7 @@ namespace thrust {
 
     __host__ __device__
     self_t operator+(difference_type i) const
-    { return self_t(m_v, m_pointer + i); }
+    { return self_t(m_v, m_tile_size, m_pointer + i); }
 
     __host__ __device__
     self_t& operator+=(difference_type i)
@@ -72,7 +70,7 @@ namespace thrust {
 
     __host__ __device__
     self_t operator-(difference_type i) const
-    { return self_t(m_v, m_pointer - i); }
+    { return self_t(m_v, m_tile_size, m_pointer - i); }
 
     __host__ __device__
     difference_type operator-(self_t s) const
