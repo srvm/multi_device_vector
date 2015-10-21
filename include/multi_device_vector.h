@@ -2,7 +2,6 @@
 
 #include <thrust/device_vector.h>
 #include "iterator.h"
-#include "util.h"
 
 namespace thrust {
 
@@ -25,7 +24,7 @@ namespace thrust {
     explicit multi_device_vector(int size, const T& prefix) :
              m_size(size) {
       cudaGetDeviceCount(&m_tiles);
-      m_tile_size = util::__ceil(size, m_tiles);
+      m_tile_size = (size - 1)/m_tiles + 1;
 
       int original_device = 0;
       cudaGetDevice(&original_device);
@@ -54,7 +53,7 @@ namespace thrust {
                         m_size(end-begin) {
       cudaGetDeviceCount(&m_tiles);
       const int size = end-begin;
-      m_tile_size = util::__ceil(size, m_tiles);
+      m_tile_size = (size - 1)/m_tiles + 1;
 
       int original_device = 0;
       cudaGetDevice(&original_device);
